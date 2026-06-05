@@ -1,59 +1,48 @@
+import cvPdf from "@/assets/files/cv_pdf/Niladri_Chatterjee(CV).pdf";
 import { VercelLogo } from "@/components/TechLogos";
+import { CONTACT_INFO } from "@/config/contact";
+import { fetcher, formatRepoCount, isTouchDevice } from "@/utils/helpers";
 import { motion } from "framer-motion";
 import {
+  Check,
+  Copy,
+  FileDown,
   Github,
   Linkedin,
   MessageCircle,
-  Copy,
-  Check,
-  FileDown,
   User,
 } from "lucide-react";
-import { Link } from "react-router-dom";
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import useSWR from "swr";
-import cvPdf from "@/assets/files/cv_pdf/Niladri_Chatterjee(CV).pdf";
 
-const fetcher = (url) => fetch(url).then((res) => res.json());
+const GITHUB_API = `https://api.github.com/users/${import.meta.env.VITE_GITHUB_USERNAME || "niladri-1"}`;
 
 const Home = () => {
   const [copied, setCopied] = useState(false);
-  const email = "code.niladri@gmail.com";
-  const whatsappNumber = "+916296554939";
 
-  const { data: githubData } = useSWR(
-    "https://api.github.com/users/niladri-1",
-    fetcher,
-    {
-      revalidateOnFocus: false,
-      dedupingInterval: 60000,
-      shouldRetryOnError: true,
-      errorRetryCount: 3,
-    },
-  );
+  const { data: githubData } = useSWR(GITHUB_API, fetcher, {
+    revalidateOnFocus: false,
+    dedupingInterval: 60000,
+    shouldRetryOnError: true,
+    errorRetryCount: 3,
+  });
 
-  function formatRepoCount(count) {
-    if (count < 5) return count.toString();
-    return `${Math.floor(count / 5) * 5}+`;
-  }
-
-  const githubRepos = githubData?.public_repos || 0;
-  const displayRepos = formatRepoCount(githubRepos);
+  const displayRepos = formatRepoCount(githubData?.public_repos ?? 0);
 
   const copyToClipboard = async () => {
     try {
-      await navigator.clipboard.writeText(email);
+      await navigator.clipboard.writeText(CONTACT_INFO.email);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
-    } catch (err) {
-      console.error("Failed to copy:", err);
+    } catch {
+      // silent fail
     }
   };
 
-  const handleEmailClick = (e) => {
-    if (window.innerWidth <= 640) {
-      window.location.href = `mailto:${email}`;
-      e.preventDefault();
+  const handleEmailClick = () => {
+    if (isTouchDevice()) {
+      window.location.href = `mailto:${CONTACT_INFO.email}`;
     } else {
       copyToClipboard();
     }
@@ -70,14 +59,15 @@ const Home = () => {
         >
           Niladri Chatterjee
         </motion.h1>
-        <motion.h1
+
+        <motion.h2
           className="text-2xl sm:text-4xl md:text-6xl font-bold mb-4 sm:mb-6 relative tracking-tighter"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
         >
           I design & code for web
-        </motion.h1>
+        </motion.h2>
 
         <motion.p
           className="text-lg sm:text-xl md:text-2xl text-gray-400 mb-4 sm:mb-5 max-w-2xl mx-auto px-2 sm:px-4"
@@ -117,7 +107,7 @@ const Home = () => {
           <button
             onClick={handleEmailClick}
             className="group relative flex items-center gap-2 py-2 pl-8 pr-4 hover:bg-transparent transition-all cursor-copy sm:cursor-pointer"
-            aria-label={`Email: ${email}`}
+            aria-label={`Email: ${CONTACT_INFO.email}`}
           >
             <div className="absolute left-0 flex items-center">
               <div className="w-3 text-gray-500 group-hover:text-white transition-colors">
@@ -128,7 +118,7 @@ const Home = () => {
               </span>
             </div>
             <span className="text-gray-400 group-hover:text-white transition-colors ml-4 sm:text-base">
-              {email}
+              {CONTACT_INFO.email}
             </span>
             <div className="opacity-0 group-hover:opacity-100 transition-opacity ml-1 hidden sm:block">
               {copied ? (
@@ -150,7 +140,7 @@ const Home = () => {
           transition={{ duration: 0.8, delay: 0.6 }}
         >
           <motion.a
-            href="https://github.com/niladri-1"
+            href={CONTACT_INFO.github}
             target="_blank"
             rel="noopener noreferrer"
             className="flex flex-col items-center group w-full"
@@ -176,7 +166,7 @@ const Home = () => {
           </motion.a>
 
           <motion.a
-            href="https://linkedin.com/in/niladri1"
+            href={CONTACT_INFO.linkedin}
             target="_blank"
             rel="noopener noreferrer"
             className="flex flex-col items-center group w-full"
@@ -192,7 +182,9 @@ const Home = () => {
               animate={{ opacity: 1 }}
               transition={{ delay: 0.8 }}
             >
-              <span className="text-base sm:text-lg font-semibold">4000+</span>
+              <span className="text-base sm:text-lg font-semibold">
+                {CONTACT_INFO.linkedInFollowers}
+              </span>
               <span className="text-xs sm:text-sm text-gray-400">
                 LinkedIn Followers
               </span>
@@ -200,7 +192,7 @@ const Home = () => {
           </motion.a>
 
           <motion.a
-            href={`https://wa.me/${whatsappNumber}`}
+            href={`https://wa.me/${CONTACT_INFO.whatsapp}`}
             target="_blank"
             rel="noopener noreferrer"
             className="flex flex-col items-center group w-full"

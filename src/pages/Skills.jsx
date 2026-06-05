@@ -3,12 +3,13 @@ import {
   Layout,
   Server,
   Database,
-  MessageSquare,
-  Brain,
   Cloud,
   Terminal,
   Wrench,
   Users,
+  Brain,
+  MessageSquare,
+  GitBranch,
 } from "lucide-react";
 import { ScrollAnimation } from "@/components/ScrollAnimation";
 import {
@@ -68,7 +69,7 @@ const skills = [
     ],
   },
   {
-    category: "Databases & Cloud Storage",
+    category: "Databases & Cloud",
     icon: <Database className="w-6 h-6" />,
     items: [
       { name: "MongoDB", icon: <MongoDBLogo /> },
@@ -78,7 +79,7 @@ const skills = [
   },
   {
     category: "Version Control & DevOps",
-    icon: <GitLogo />,
+    icon: <GitBranch className="w-6 h-6" />,
     items: [
       { name: "Git", icon: <GitLogo /> },
       { name: "GitHub", icon: <GitLogo /> },
@@ -91,7 +92,6 @@ const skills = [
     icon: <Wrench className="w-6 h-6" />,
     items: [
       { name: "VS Code", icon: <VSCodeLogo /> },
-      { name: "Git Desktop", icon: <GitLogo /> },
       { name: "Compass", icon: <MongoDBLogo /> },
       { name: "Postman", icon: <PostmanLogo /> },
     ],
@@ -100,9 +100,9 @@ const skills = [
     category: "Operating Systems",
     icon: <Terminal className="w-6 h-6" />,
     items: [
-      { name: "Windows", icon: <WindowsLogo className="w-4 h-4" /> },
-      { name: "Ubuntu", icon: <UbuntuLogo className="w-4 h-4" /> },
-      { name: "Linux", icon: <LinuxLogo className="w-4 h-4" /> },
+      { name: "Windows", icon: <WindowsLogo /> },
+      { name: "Ubuntu", icon: <UbuntuLogo /> },
+      { name: "Linux", icon: <LinuxLogo /> },
     ],
   },
   {

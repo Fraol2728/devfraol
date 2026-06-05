@@ -1,30 +1,19 @@
-import { useEffect, useRef } from 'react'
-import { motion, useAnimation, useInView } from 'framer-motion'
+import { motion } from "framer-motion";
 
-export const ScrollAnimation = ({ children, className }) => {
-  const ref = useRef(null)
-  const isInView = useInView(ref, { once: true, margin: '-100px' })
-  const controls = useAnimation()
+const variants = {
+  hidden: { opacity: 0, y: 75 },
+  visible: { opacity: 1, y: 0 },
+};
 
-  useEffect(() => {
-    if (isInView) {
-      controls.start('visible')
-    }
-  }, [isInView, controls])
-
-  return (
-    <motion.div
-      ref={ref}
-      initial="hidden"
-      animate={controls}
-      variants={{
-        hidden: { opacity: 0, y: 75 },
-        visible: { opacity: 1, y: 0 },
-      }}
-      transition={{ duration: 0.5, ease: 'easeOut' }}
-      className={className}
-    >
-      {children}
-    </motion.div>
-  )
-}
+export const ScrollAnimation = ({ children, className }) => (
+  <motion.div
+    variants={variants}
+    initial="hidden"
+    whileInView="visible"
+    viewport={{ once: true, margin: "-100px" }}
+    transition={{ duration: 0.5, ease: "easeOut" }}
+    className={className}
+  >
+    {children}
+  </motion.div>
+);

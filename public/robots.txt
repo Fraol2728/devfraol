@@ -1,7 +1,5 @@
 # robots.txt for https://niladri1.vercel.app/
-# Optimized for maximum SEO crawling
 
-# Allow all search engines
 User-agent: *
 Allow: /
 
@@ -20,20 +18,11 @@ Allow: /
 User-agent: DuckDuckBot
 Allow: /
 
-User-agent: Baiduspider
-Allow: /
-
-# Block irrelevant server paths
-Disallow: /api/
-Disallow: /_next/
 Disallow: /node_modules/
 
-# Explicitly allow important public files
 Allow: /sitemap.xml
 Allow: /manifest.json
 Allow: /og-image.png
 Allow: /favicon.ico
-Allow: /*.pdf$
 
-# Sitemap
 Sitemap: https://niladri1.vercel.app/sitemap.xml

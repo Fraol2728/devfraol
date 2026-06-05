@@ -18,6 +18,7 @@ import oasisInfobytePdf from "@/assets/files/experience_pdf/oasisInfobyte.pdf";
 
 const experiences = [
   {
+    id: 1,
     title: "Software Engineering Intern",
     company: "Code Alpha",
     location: "Remote",
@@ -31,6 +32,7 @@ const experiences = [
     ],
   },
   {
+    id: 2,
     title: "Full Stack Development Intern",
     company: "Bharat Intern",
     location: "Remote",
@@ -44,6 +46,7 @@ const experiences = [
     ],
   },
   {
+    id: 3,
     title: "Web Applications Intern",
     company: "CodeClause",
     location: "Remote",
@@ -57,6 +60,7 @@ const experiences = [
     ],
   },
   {
+    id: 4,
     title: "Junior Web Developer",
     company: "Oasis Infobyte",
     location: "Remote",
@@ -65,8 +69,9 @@ const experiences = [
     image: oasisInfobyteImg,
     certificateUrl: oasisInfobytePdf,
     description: [
-      "Engineered a real-time collaborative document editor using Next.js, TypeScript, and Liveblocks, reducing latency by 30%",
-      "Implemented and optimized a personal portfolio with Next.js and Tailwind CSS, improving performance by 40%",
+      // TODO: Replace with your actual Oasis Infobyte work description
+      "Developed responsive web interfaces using HTML, CSS, and JavaScript, improving cross-browser compatibility across all target platforms",
+      "Built and deployed a task management web application with full CRUD functionality, enhancing team productivity tracking by 35%",
     ],
   },
 ];
@@ -83,7 +88,7 @@ const Experience = () => {
 
       <div className="space-y-8 sm:space-y-12">
         {experiences.map((exp) => (
-          <ScrollAnimation key={exp.title}>
+          <ScrollAnimation key={exp.id}>
             <div className="group relative bg-gray-800/50 rounded-xl sm:rounded-2xl overflow-hidden backdrop-blur-sm hover:bg-gray-800/70 transition-all border border-white/5">
               <div className="grid grid-cols-1 md:grid-cols-[1fr,300px]">
                 <div className="p-6 sm:p-8">
@@ -137,6 +142,9 @@ const Experience = () => {
                     <img
                       src={exp.image}
                       alt={exp.company}
+                      loading="lazy"
+                      width={300}
+                      height={400}
                       className="w-full h-full object-cover"
                     />
                     <div className="absolute inset-0 bg-gradient-to-r from-gray-800/80 to-transparent" />

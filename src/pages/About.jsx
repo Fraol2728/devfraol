@@ -1,38 +1,44 @@
-import { motion } from "framer-motion";
-import { Link } from "react-router-dom";
-import { Code2, Briefcase, GraduationCap, Globe } from "lucide-react";
-import { ScrollAnimation } from "@/components/ScrollAnimation";
-import profileImg from "@/assets/profile/profile.jpg";
 import cvPdf from "@/assets/files/cv_pdf/Niladri_Chatterjee(CV).pdf";
+import profileImg from "@/assets/profile/profile.jpg";
+import { ScrollAnimation } from "@/components/ScrollAnimation";
+import { motion } from "framer-motion";
+import { Briefcase, Code2, Globe, GraduationCap } from "lucide-react";
+import { Link } from "react-router-dom";
+
+const achievements = [
+  {
+    icon: <Code2 className="w-6 h-6" />,
+    title: "10+ Projects",
+    description: "Completed full-stack web applications",
+  },
+  {
+    icon: <Briefcase className="w-6 h-6" />,
+    title: "3+ Internships",
+    description: "Professional work experience",
+  },
+  {
+    icon: <GraduationCap className="w-6 h-6" />,
+    title: "8.48 CGPA",
+    description: "Academic excellence",
+  },
+];
+
+const interests = [
+  "Web Development",
+  "UI/UX Design",
+  "Cloud Computing",
+  "DevOps",
+  "Open Source",
+  "Artificial Intelligence",
+];
+
+const quickFacts = [
+  "Based in Kolkata, WB, India",
+  "B.Tech in Computer Science",
+  "CGPA: 8.48",
+];
 
 const About = () => {
-  const achievements = [
-    {
-      icon: <Code2 className="w-6 h-6" />,
-      title: "10+ Projects",
-      description: "Completed full-stack web applications",
-    },
-    {
-      icon: <Briefcase className="w-6 h-6" />,
-      title: "3+ Internships",
-      description: "Professional work experience",
-    },
-    {
-      icon: <GraduationCap className="w-6 h-6" />,
-      title: "8.48 CGPA",
-      description: "Academic excellence",
-    },
-  ];
-
-  const interests = [
-    "Web Development",
-    "UI/UX Design",
-    "Cloud Computing",
-    "DevOps",
-    "Open Source",
-    "Artificial Intelligence",
-  ];
-
   return (
     <div className="min-h-screen pt-20 px-4 max-w-4xl mx-auto pb-20">
       <ScrollAnimation>
@@ -47,6 +53,8 @@ const About = () => {
             <img
               src={profileImg}
               alt="Niladri Chatterjee"
+              width={600}
+              height={600}
               className="w-full h-full object-cover hover:scale-105 transition-transform duration-500"
             />
           </div>
@@ -75,47 +83,39 @@ const About = () => {
             </p>
           </div>
 
-          <ScrollAnimation>
-            <div className="pt-4">
-              <h3 className="text-2xl font-semibold mb-4 gradient-text">
-                Quick Facts
-              </h3>
-              <ul className="list-none space-y-3">
-                {[
-                  "Based in Kolkata, WB, India",
-                  "B.Tech in Computer Science",
-                  "CGPA: 8.48",
-                ].map((fact) => (
-                  <motion.li
-                    key={fact}
-                    className="flex items-center space-x-2 text-gray-300"
-                  >
-                    <span className="w-2 h-2 bg-white rounded-full" />
-                    <span>{fact}</span>
-                  </motion.li>
-                ))}
-              </ul>
-            </div>
-          </ScrollAnimation>
+          <div className="pt-4">
+            <h3 className="text-2xl font-semibold mb-4 gradient-text">
+              Quick Facts
+            </h3>
+            <ul className="list-none space-y-3">
+              {quickFacts.map((fact) => (
+                <motion.li
+                  key={fact}
+                  className="flex items-center space-x-2 text-gray-300"
+                >
+                  <span className="w-2 h-2 bg-white rounded-full" />
+                  <span>{fact}</span>
+                </motion.li>
+              ))}
+            </ul>
+          </div>
 
-          <ScrollAnimation>
-            <div className="flex justify-start space-x-4">
-              <a
-                href={cvPdf}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="px-6 py-3 bg-white text-black rounded-full font-medium hover:bg-gray-100 transition-colors"
-              >
-                Download CV
-              </a>
-              <Link
-                to="/skills"
-                className="px-6 py-3 bg-white/10 text-white rounded-full font-medium hover:bg-white/20 transition-colors"
-              >
-                My Skills
-              </Link>
-            </div>
-          </ScrollAnimation>
+          <div className="flex justify-start space-x-4">
+            <a
+              href={cvPdf}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="px-6 py-3 bg-white text-black rounded-full font-medium hover:bg-gray-100 transition-colors"
+            >
+              Download CV
+            </a>
+            <Link
+              to="/skills"
+              className="px-6 py-3 bg-white/10 text-white rounded-full font-medium hover:bg-white/20 transition-colors"
+            >
+              My Skills
+            </Link>
+          </div>
         </ScrollAnimation>
       </div>
 
@@ -126,15 +126,16 @@ const About = () => {
           </h3>
           <div className="grid md:grid-cols-3 gap-6">
             {achievements.map((achievement) => (
-              <ScrollAnimation key={achievement.title}>
-                <div className="bg-white/5 p-6 rounded-xl backdrop-blur-sm">
-                  <div className="text-white mb-4">{achievement.icon}</div>
-                  <h4 className="text-xl font-semibold mb-2">
-                    {achievement.title}
-                  </h4>
-                  <p className="text-gray-400">{achievement.description}</p>
-                </div>
-              </ScrollAnimation>
+              <div
+                key={achievement.title}
+                className="bg-white/5 p-6 rounded-xl backdrop-blur-sm"
+              >
+                <div className="text-white mb-4">{achievement.icon}</div>
+                <h4 className="text-xl font-semibold mb-2">
+                  {achievement.title}
+                </h4>
+                <p className="text-gray-400">{achievement.description}</p>
+              </div>
             ))}
           </div>
         </div>
@@ -147,12 +148,13 @@ const About = () => {
           </h3>
           <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
             {interests.map((interest) => (
-              <ScrollAnimation key={interest}>
-                <div className="bg-white/5 p-4 rounded-xl backdrop-blur-sm flex items-center gap-3">
-                  <Globe className="w-5 h-5 text-gray-400" />
-                  <span className="text-gray-300">{interest}</span>
-                </div>
-              </ScrollAnimation>
+              <div
+                key={interest}
+                className="bg-white/5 p-4 rounded-xl backdrop-blur-sm flex items-center gap-3"
+              >
+                <Globe className="w-5 h-5 text-gray-400" />
+                <span className="text-gray-300">{interest}</span>
+              </div>
             ))}
           </div>
         </div>
