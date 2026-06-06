@@ -1,13 +1,14 @@
-import { Suspense, lazy } from "react";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
 import {
   Background3D,
-  Navbar,
+  ErrorBoundary,
   Footer,
   Loading,
-  ErrorBoundary,
+  Navbar,
 } from "@/components/index";
 import { useSEO } from "@/hooks/useSEO";
+import { useVisitorTracking } from "@/hooks/useVisitorTracking";
+import { Suspense, lazy } from "react";
+import { BrowserRouter, Route, Routes } from "react-router-dom";
 
 const Home = lazy(() => import("./pages/Home"));
 const About = lazy(() => import("./pages/About"));
@@ -21,6 +22,7 @@ const NotFound = lazy(() => import("./pages/NotFound"));
 
 function AppLayout() {
   useSEO();
+  useVisitorTracking();
 
   return (
     <div className="min-h-screen flex flex-col">

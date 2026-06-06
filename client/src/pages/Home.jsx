@@ -23,7 +23,7 @@ const Home = () => {
 
   const { data: githubData } = useSWR(GITHUB_API, fetcher, {
     revalidateOnFocus: false,
-    dedupingInterval: 60000,
+    dedupingInterval: 300000,
     shouldRetryOnError: true,
     errorRetryCount: 3,
   });
@@ -150,19 +150,12 @@ const Home = () => {
             <div className="p-3 rounded-xl transition-colors mb-2 w-full max-w-[200px]">
               <Github className="w-5 h-5 sm:w-6 sm:h-6 text-gray-400 group-hover:text-white transition-colors mx-auto" />
             </div>
-            <motion.div
-              className="flex flex-col items-center"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.8 }}
-            >
-              <span className="text-base sm:text-lg font-semibold">
-                {displayRepos}
-              </span>
-              <span className="text-xs sm:text-sm text-gray-400">
-                GitHub Projects
-              </span>
-            </motion.div>
+            <span className="text-base sm:text-lg font-semibold">
+              {displayRepos}
+            </span>
+            <span className="text-xs sm:text-sm text-gray-400">
+              GitHub Projects
+            </span>
           </motion.a>
 
           <motion.a
@@ -176,19 +169,12 @@ const Home = () => {
             <div className="p-3 rounded-xl transition-colors mb-2 w-full max-w-[200px]">
               <Linkedin className="w-5 h-5 sm:w-6 sm:h-6 text-gray-400 group-hover:text-white transition-colors mx-auto" />
             </div>
-            <motion.div
-              className="flex flex-col items-center"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.8 }}
-            >
-              <span className="text-base sm:text-lg font-semibold">
-                {CONTACT_INFO.linkedInFollowers}
-              </span>
-              <span className="text-xs sm:text-sm text-gray-400">
-                LinkedIn Followers
-              </span>
-            </motion.div>
+            <span className="text-base sm:text-lg font-semibold">
+              {CONTACT_INFO.linkedInFollowers}
+            </span>
+            <span className="text-xs sm:text-sm text-gray-400">
+              LinkedIn Followers
+            </span>
           </motion.a>
 
           <motion.a
@@ -202,17 +188,10 @@ const Home = () => {
             <div className="p-3 rounded-xl transition-colors mb-2 w-full max-w-[200px]">
               <MessageCircle className="w-5 h-5 sm:w-6 sm:h-6 text-gray-400 group-hover:text-white transition-colors mx-auto" />
             </div>
-            <motion.div
-              className="flex flex-col items-center"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.8 }}
-            >
-              <span className="text-base sm:text-lg font-semibold">24x7</span>
-              <span className="text-xs sm:text-sm text-gray-400">
-                WhatsApp Me
-              </span>
-            </motion.div>
+            <span className="text-base sm:text-lg font-semibold">24x7</span>
+            <span className="text-xs sm:text-sm text-gray-400">
+              WhatsApp Me
+            </span>
           </motion.a>
         </motion.div>
       </div>

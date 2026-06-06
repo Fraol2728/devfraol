@@ -14,8 +14,7 @@ import { useState } from "react";
 import { CONTACT_INFO, OFFICE_HOURS } from "@/config/contact";
 import { validateContactForm } from "@/utils/helpers";
 
-const FORMSPREE_ENDPOINT = `https://formspree.io/f/${import.meta.env.VITE_FORMSPREE_ID}`;
-
+const API_URL = import.meta.env.VITE_API_URL || "";
 const INITIAL_FORM = { name: "", email: "", subject: "", message: "" };
 
 const Contact = () => {
@@ -85,17 +84,27 @@ const Contact = () => {
     setIsSubmitting(true);
 
     try {
-      const response = await fetch(FORMSPREE_ENDPOINT, {
+      const response = await fetch(`${API_URL}/api/v1/contact`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),
       });
 
-      if (response.ok) {
+      const data = await response.json();
+
+      if (response.ok && data.success) {
         setSubmitStatus("success");
         setFormData(INITIAL_FORM);
         setErrors({});
       } else {
+        // Surface server-side validation errors if any
+        if (data.errors?.length) {
+          const serverErrors = {};
+          data.errors.forEach(({ field, message }) => {
+            serverErrors[field] = message;
+          });
+          setErrors(serverErrors);
+        }
         setSubmitStatus("error");
       }
     } catch {
@@ -340,7 +349,7 @@ const Contact = () => {
                   animate={{ opacity: 1, y: 0 }}
                   className="text-green-400 text-center text-sm sm:text-base"
                 >
-                  Message sent successfully! I'll get back to you soon.
+                  Message sent! I'll get back to you within 24–48 hours.
                 </motion.p>
               )}
 
@@ -350,7 +359,13 @@ const Contact = () => {
                   animate={{ opacity: 1, y: 0 }}
                   className="text-red-400 text-center text-sm sm:text-base"
                 >
-                  Something went wrong. Please try again or email me directly.
+                  Something went wrong. Please email me directly at{" "}
+                  <a
+                    href={`mailto:${CONTACT_INFO.email}`}
+                    className="underline"
+                  >
+                    {CONTACT_INFO.email}
+                  </a>
                 </motion.p>
               )}
             </form>

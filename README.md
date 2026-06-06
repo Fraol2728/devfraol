@@ -1,207 +1,148 @@
 <div align="center">
 
-# Niladri Chatterjee — Portfolio 🚀
+# 🚀 Niladri Chatterjee — Portfolio
 
-[![Website](https://img.shields.io/website?label=Live%20Portfolio&style=for-the-badge&url=https%3A%2F%2Fniladri1.vercel.app)](https://niladri1.vercel.app)
-[![GitHub followers](https://img.shields.io/github/followers/niladri-1?logo=github&style=for-the-badge)](https://github.com/niladri-1)
-[![LinkedIn](https://img.shields.io/badge/LinkedIn-4000%2B%20Followers-blue?style=for-the-badge&logo=linkedin)](https://linkedin.com/in/niladri1)
-[![Vercel](https://img.shields.io/badge/Deployed%20on-Vercel-black?style=for-the-badge&logo=vercel)](https://niladri1.vercel.app)
+[![Live](https://img.shields.io/badge/Live-niladri1.vercel.app-black?style=for-the-badge&logo=vercel)](https://niladri1.vercel.app)
+[![React](https://img.shields.io/badge/React-18-61DAFB?style=for-the-badge&logo=react)](https://react.dev)
+[![Node.js](https://img.shields.io/badge/Node.js-Express-339933?style=for-the-badge&logo=node.js)](https://nodejs.org)
+[![MongoDB](https://img.shields.io/badge/MongoDB-Atlas-47A248?style=for-the-badge&logo=mongodb)](https://mongodb.com)
 
-<p align="center">
-  <img src="https://skillicons.dev/icons?i=react,vite,typescript,tailwind,nodejs,mongodb,express,git" alt="Tech Stack Icons" />
-</p>
-
-<h3>Full Stack Developer · MERN Stack Specialist · Kolkata, India</h3>
-
-[🌐 View Live](https://niladri1.vercel.app) · [🐛 Report Bug](https://github.com/niladri-1/Software-Dev-Portfolio/issues) · [✨ Request Feature](https://github.com/niladri-1/Software-Dev-Portfolio/issues)
-
-<br/>
-
-<img src="https://niladri1.vercel.app/og-image.png" alt="Niladri Chatterjee Portfolio Preview" width="80%" style="border-radius: 12px;" />
+A full-stack personal portfolio with a **React + Vite** frontend, **Node.js + Express** backend, real-time visitor tracking, and a contact form — all backed by **MongoDB Atlas**.
 
 </div>
-
----
-
-## 🌟 Overview
-
-A modern, fully responsive personal portfolio built with **React 18 + Vite 5** and **Tailwind CSS**, featuring smooth animations, a real-time GitHub integration, smart search, and complete SEO optimization. Designed to showcase my skills, projects, and experience as a Full Stack Developer.
 
 ---
 
 ## ✨ Features
 
-<div align="center">
-
-| Feature | Description |
-|---------|-------------|
-| 🎨 Dark Theme | Sleek dark UI with subtle 3D background and gradient accents |
-| 📱 Fully Responsive | Optimized for mobile, tablet and desktop |
-| ⚡ Vite Powered | Lightning-fast HMR development and optimized production builds |
-| 🔍 Smart Search | Real-time search across all portfolio sections |
-| 🎭 Framer Motion | Smooth scroll animations and page transitions |
-| 🐙 GitHub Live Data | Real-time repo count fetched from GitHub API via SWR |
-| 🤖 SEO Optimized | Per-page meta tags, OG image, JSON-LD structured data, sitemap |
-| 📲 PWA Ready | Installable on mobile with full manifest and favicon set |
-
-</div>
+- 🎨 &nbsp;Dark UI with 3D WebGL background (OGL)
+- 📊 &nbsp;Real-time visitor tracking — browser, OS, device, pages visited
+- 💬 &nbsp;Contact form with spam filtering, rate limiting & validation
+- 🔍 &nbsp;`Ctrl+K` smart search across all pages
+- 📈 &nbsp;Live GitHub repo count via SWR
+- 🤖 &nbsp;Full SEO — sitemap, OG tags, JSON-LD, PWA manifest
+- 🔐 &nbsp;Admin API key protected endpoints
 
 ---
 
-## 🚀 Tech Stack
-
-<div align="center">
-
-| Category | Technologies |
-|----------|-------------|
-| **Frontend** | React 18, Vite 5, Tailwind CSS 3, Framer Motion 11 |
-| **Routing** | React Router DOM 6 |
-| **Data Fetching** | SWR (GitHub API) |
-| **Icons** | Lucide React |
-| **Backend/DB** | Node.js, Express.js, MongoDB, MySQL |
-| **Auth** | JWT |
-| **Cloud** | AWS, Render, Vercel |
-| **Tools** | Git, GitHub, Postman, VS Code |
-
-</div>
-
----
-
-## 📁 Project Structure
+## 🗂️ Project Structure
 
 ```
-├── public/
-│   ├── favicon.ico
-│   ├── favicon-16x16.png
-│   ├── favicon-32x32.png
-│   ├── favicon-192.png
-│   ├── favicon-512.png
-│   ├── apple-touch-icon.png
-│   ├── og-image.png
-│   ├── manifest.json
-│   ├── robots.txt
-│   └── sitemap.xml
-└── src/
-    ├── assets/
-    ├── components/
-    │   ├── Background3D.jsx
-    │   ├── Footer.jsx
-    │   ├── Loading.jsx
-    │   ├── Navbar.jsx
-    │   ├── ScrollAnimation.jsx
-    │   ├── SearchDialog.jsx
-    │   └── TechLogos.jsx
-    ├── pages/
-    │   ├── Home.jsx
-    │   ├── About.jsx
-    │   ├── Projects.jsx
-    │   ├── Skills.jsx
-    │   ├── Experience.jsx
-    │   ├── Education.jsx
-    │   ├── Certificates.jsx
-    │   ├── Contact.jsx
-    │   └── NotFound.jsx
-    ├── config/
-    │   └── contact.js
-    ├── App.jsx
-    ├── main.jsx
-    └── index.css
+Personal-portfolio/
+├── client/          # React + Vite frontend (deployed on Vercel)
+└── server/          # Express + MongoDB backend (deployed on Render)
 ```
 
 ---
 
-## 🛠️ Quick Start
+## ⚙️ Setup
+
+### Prerequisites
+- Node.js 18+
+- MongoDB Atlas account (or local MongoDB)
+
+---
+
+### 1. Clone the repo
 
 ```bash
-# Clone the repository
-git clone https://github.com/niladri-1/niladri-1/Personal-portfolio
-
-# Navigate to project
+git clone https://github.com/niladri-1/Personal-portfolio.git
 cd Personal-portfolio
-
-# Install dependencies
-npm install
-
-# Start development server
-npm run dev
-
-# Build for production
-npm run build
-
-# Preview production build
-npm run preview
 ```
 
 ---
 
-## 🎯 Portfolio Sections
+### 2. Backend Setup
 
-<div align="center">
+```bash
+cd server
+npm install
+cp .env.example .env   # fill in your values
+npm run dev
+```
 
-| Section | Description |
-|---------|-------------|
-| 🏠 Home | Introduction, live GitHub stats, social links |
-| 👨‍💻 About | Background, achievements, areas of interest |
-| 📂 Projects | Full stack projects with tech stack details |
-| 💼 Experience | Internships and professional work history |
-| 🎓 Education | B.Tech Computer Science — 8.48 CGPA |
-| 🛠️ Skills | Categorized technical skills with icons |
-| 🏆 Certificates | Professional certifications |
-| 📞 Contact | Email, WhatsApp, LinkedIn, GitHub |
+#### `server/.env`
 
-</div>
+```env
+PORT=5000
+NODE_ENV=development
+MONGODB_URI=mongodb+srv://<user>:<password>@cluster.mongodb.net/portfolio
+FRONTEND_URL=http://localhost:5173
+ADMIN_API_KEY=your_strong_random_secret_here
+```
 
----
-
-## 🔍 SEO
-
-This portfolio is fully SEO-optimized:
-
-- ✅ Per-page dynamic `<title>` and `<meta description>` via `SEOUpdater` component
-- ✅ Open Graph + Twitter Card tags for rich link previews
-- ✅ JSON-LD structured data (`Person` schema)
-- ✅ XML sitemap with all pages
-- ✅ `robots.txt` correctly configured
-- ✅ PWA manifest with correct icons
-- ✅ Google Search Console verified
-- ✅ Custom `og-image.png` (1200×630) for social sharing
-- ✅ Full favicon set (16, 32, 192, 512, ICO, Apple Touch)
+| Variable | Description |
+|---|---|
+| `MONGODB_URI` | MongoDB Atlas connection string |
+| `FRONTEND_URL` | Your frontend URL (Vercel URL in production) |
+| `ADMIN_API_KEY` | Secret key for accessing admin routes |
 
 ---
 
-## 📞 Connect with Me
+### 3. Frontend Setup
 
-<div align="center">
+```bash
+cd client
+npm install
+cp .env.example .env   # fill in your values
+npm run dev
+```
 
-[![Email](https://img.shields.io/badge/Email-code.niladri%40gmail.com-red?style=for-the-badge&logo=gmail)](mailto:code.niladri@gmail.com)
-[![LinkedIn](https://img.shields.io/badge/LinkedIn-niladri1-blue?style=for-the-badge&logo=linkedin)](https://linkedin.com/in/niladri1)
-[![Portfolio](https://img.shields.io/badge/Portfolio-niladri1.vercel.app-orange?style=for-the-badge&logo=vercel)](https://niladri1.vercel.app)
+#### `client/.env`
 
-</div>
+```env
+VITE_GITHUB_USERNAME=your_github_username
+VITE_API_URL=http://localhost:5000/api/v1
+```
+
+| Variable | Description |
+|---|---|
+| `VITE_GITHUB_USERNAME` | Your GitHub username for live repo count |
+| `VITE_API_URL` | Backend API URL (`/api/v1` in production) |
 
 ---
 
-## 📈 GitHub Stats
+## 🌐 API Endpoints
 
-<div align="center">
+| Method | Route | Auth | Description |
+|---|---|---|---|
+| `POST` | `/api/v1/contact` | — | Submit contact form |
+| `GET` | `/api/v1/contact` | Admin key | Get all messages |
+| `POST` | `/api/v1/visitors/track` | — | Track page visit |
+| `POST` | `/api/v1/visitors/heartbeat` | — | Keep session alive |
+| `GET` | `/api/v1/visitors` | Admin key | Get all visitor data |
+| `GET` | `/api/v1/health` | — | Server health check |
 
-[![GitHub Streak](https://github-readme-streak-stats.herokuapp.com/?user=niladri-1&theme=dark&hide_border=true)](https://github.com/niladri-1)
-
-[![Top Languages](https://github-readme-stats.vercel.app/api/top-langs/?username=niladri-1&layout=compact&theme=dark&hide_border=true)](https://github.com/niladri-1)
-
-</div>
+**Admin routes** require the header:
+```
+X-Admin-Key: your_admin_api_key
+```
 
 ---
 
-## 📄 License
+## 🚀 Deployment
+
+### Frontend → Vercel
+1. Import repo on [vercel.com](https://vercel.com)
+2. Set root directory to `client`
+3. Add env vars: `VITE_GITHUB_USERNAME`, `VITE_API_URL`
+
+### Backend → Render
+1. Create a new **Web Service** on [render.com](https://render.com)
+2. Set root directory to `server`
+3. Start command: `npm start`
+4. Add env vars: `MONGODB_URI`, `FRONTEND_URL`, `ADMIN_API_KEY`, `NODE_ENV=production`
+
+---
+
+## 📞 Contact
+
+[![Email](https://img.shields.io/badge/Email-code.niladri%40gmail.com-red?style=flat-square&logo=gmail)](mailto:code.niladri@gmail.com)
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-niladri1-blue?style=flat-square&logo=linkedin)](https://linkedin.com/in/niladri1)
+[![GitHub](https://img.shields.io/badge/GitHub-niladri--1-black?style=flat-square&logo=github)](https://github.com/niladri-1)
+
+---
 
 <div align="center">
-
-This project is licensed under the **MIT License** — see the [LICENSE](LICENSE) file for details.
-
-[![MIT License](https://img.shields.io/badge/License-MIT-green.svg?style=for-the-badge)](LICENSE)
-[![Visitors](https://api.visitorbadge.io/api/visitors?path=niladri-1%2FSoftware-Dev-Portfolio&label=Visitors&labelColor=%23000000&countColor=%2322d3ee)](https://visitorbadge.io/status?path=niladri-1%2FSoftware-Dev-Portfolio)
-
-<h3>⭐ Star this repo if you found it helpful!</h3>
-
+  <sub>Built with ❤️ by Niladri Chatterjee</sub>
 </div>
