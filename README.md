@@ -29,8 +29,8 @@ A full-stack personal portfolio with a **React + Vite** frontend, **Node.js + Ex
 
 ```
 Personal-portfolio/
-├── client/          # React + Vite frontend (deployed on Vercel)
-└── server/          # Express + MongoDB backend (deployed on Render)
+├── client/          # React + Vite frontend
+└── server/          # Express + MongoDB backend
 ```
 
 ---
@@ -71,12 +71,6 @@ FRONTEND_URL=http://localhost:5173
 ADMIN_API_KEY=your_strong_random_secret_here
 ```
 
-| Variable | Description |
-|---|---|
-| `MONGODB_URI` | MongoDB Atlas connection string |
-| `FRONTEND_URL` | Your frontend URL (Vercel URL in production) |
-| `ADMIN_API_KEY` | Secret key for accessing admin routes |
-
 ---
 
 ### 3. Frontend Setup
@@ -92,13 +86,9 @@ npm run dev
 
 ```env
 VITE_GITHUB_USERNAME=your_github_username
-VITE_API_URL=http://localhost:5000/api/v1
+VITE_API_URL=http://localhost:5000
+VITE_TRACKER_API_URL=http://localhost:5000/api/v1
 ```
-
-| Variable | Description |
-|---|---|
-| `VITE_GITHUB_USERNAME` | Your GitHub username for live repo count |
-| `VITE_API_URL` | Backend API URL (`/api/v1` in production) |
 
 ---
 
@@ -122,16 +112,39 @@ X-Admin-Key: your_admin_api_key
 
 ## 🚀 Deployment
 
-### Frontend → Vercel
-1. Import repo on [vercel.com](https://vercel.com)
-2. Set root directory to `client`
-3. Add env vars: `VITE_GITHUB_USERNAME`, `VITE_API_URL`
+> Deploy **server first**, then client.
 
-### Backend → Render
-1. Create a new **Web Service** on [render.com](https://render.com)
-2. Set root directory to `server`
-3. Start command: `npm start`
-4. Add env vars: `MONGODB_URI`, `FRONTEND_URL`, `ADMIN_API_KEY`, `NODE_ENV=production`
+**Project 1 — Server**
+
+| Setting | Value |
+|---|---|
+| Root Directory | `server` |
+| Framework | Other |
+| Build Command | `npm install` |
+| Output Directory | *(leave blank)* |
+
+```env
+PORT=5000
+NODE_ENV=production
+MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/portfolio
+FRONTEND_URL=http://localhost:5173
+ADMIN_API_KEY=generate_a_strong_random_string_here
+```
+
+**Project 2 — Client**
+
+| Setting | Value |
+|---|---|
+| Root Directory | `client` |
+| Framework | Vite |
+| Build Command | `npm run build` |
+| Output Directory | `dist` |
+
+```env
+VITE_GITHUB_USERNAME=your_github_username
+VITE_API_URL=http://localhost:5000
+VITE_TRACKER_API_URL=http://localhost:5000/api/v1
+```
 
 ---
 

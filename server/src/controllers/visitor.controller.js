@@ -13,56 +13,48 @@ const formatIST = (date = new Date()) =>
     hour12: true,
   }).format(date);
 
+const getIP = (req) =>
+  req.headers['x-forwarded-for']?.split(',')[0]?.trim() || req.socket.remoteAddress || req.ip;
+
 const trackVisitor = async (req, res, next) => {
   try {
-    const { sessionId, path } = req.body;
+    const { path, newSession } = req.body;
 
-    if (!sessionId || !path) {
-      return res.status(400).json({
-        success: false,
-        message: 'sessionId and path required',
-      });
+    if (!path) {
+      return res.status(400).json({ success: false, message: 'path required' });
     }
 
+    const ipAddress = getIP(req);
     const parser = new UAParser(req.headers['user-agent']);
     const browser = parser.getBrowser();
     const os = parser.getOS();
     const device = parser.getDevice();
 
-    const ipAddress =
-      req.headers['x-forwarded-for']?.split(',')[0] || req.socket.remoteAddress || req.ip;
-
-    const existing = await Visitor.findOne({ sessionId });
+    const existing = await Visitor.findOne({ ipAddress });
 
     if (!existing) {
       await Visitor.create({
-        sessionId,
         ipAddress,
-        browser: {
-          name: browser.name,
-          version: browser.version,
-        },
-        os: {
-          name: os.name,
-          version: os.version,
-        },
+        browser: { name: browser.name, version: browser.version },
+        os: { name: os.name, version: os.version },
         device: device.type || 'desktop',
-        pagesVisited: [{ path }],
+        pagesVisited: [path],
+        visitCount: 1,
       });
 
       return res.json({ success: true });
     }
 
-    const now = new Date();
+    const update = {
+      lastSeenAt: formatIST(),
+      $push: { pagesVisited: path },
+    };
 
-    existing.visitCount += 1;
-    existing.lastSeenAt = formatIST(now);
-    existing.lastSeenTimestamp = now.getTime();
-    existing.updatedAt = formatIST(now);
-    existing.isOnline = true;
-    existing.pagesVisited.push({ path });
+    if (newSession) {
+      update.$inc = { visitCount: 1 };
+    }
 
-    await existing.save();
+    await Visitor.findOneAndUpdate({ ipAddress }, update);
 
     return res.json({ success: true });
   } catch (error) {
@@ -72,24 +64,8 @@ const trackVisitor = async (req, res, next) => {
 
 const heartbeat = async (req, res, next) => {
   try {
-    const { sessionId } = req.body;
-
-    if (!sessionId) {
-      return res.status(400).json({ success: false, message: 'sessionId required' });
-    }
-
-    const now = new Date();
-
-    await Visitor.findOneAndUpdate(
-      { sessionId },
-      {
-        lastSeenAt: formatIST(now),
-        lastSeenTimestamp: now.getTime(),
-        updatedAt: formatIST(now),
-        isOnline: true,
-      },
-    );
-
+    const ipAddress = getIP(req);
+    await Visitor.findOneAndUpdate({ ipAddress }, { lastSeenAt: formatIST() });
     return res.json({ success: true });
   } catch (error) {
     next(error);
@@ -98,16 +74,8 @@ const heartbeat = async (req, res, next) => {
 
 const getVisitors = async (req, res, next) => {
   try {
-    const visitors = await Visitor.find().sort({ createdAt: -1 }).lean();
-
-    const now = Date.now();
-
-    const data = visitors.map(({ lastSeenTimestamp, ...rest }) => ({
-      ...rest,
-      isOnline: now - (lastSeenTimestamp || 0) < 60000,
-    }));
-
-    return res.json({ success: true, total: data.length, data });
+    const visitors = await Visitor.find().sort({ firstVisitAt: -1 }).lean();
+    return res.json({ success: true, total: visitors.length, data: visitors });
   } catch (error) {
     next(error);
   }

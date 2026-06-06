@@ -14,14 +14,12 @@ const formatIST = (date = new Date()) =>
 
 const visitorSchema = new mongoose.Schema(
   {
-    sessionId: {
+    ipAddress: {
       type: String,
       required: true,
       unique: true,
       index: true,
     },
-
-    ipAddress: String,
 
     browser: {
       name: String,
@@ -35,15 +33,7 @@ const visitorSchema = new mongoose.Schema(
 
     device: String,
 
-    pagesVisited: [
-      {
-        path: String,
-        visitedAt: {
-          type: String,
-          default: () => formatIST(),
-        },
-      },
-    ],
+    pagesVisited: [String],
 
     visitCount: {
       type: Number,
@@ -56,26 +46,6 @@ const visitorSchema = new mongoose.Schema(
     },
 
     lastSeenAt: {
-      type: String,
-      default: () => formatIST(),
-    },
-
-    lastSeenTimestamp: {
-      type: Number,
-      default: Date.now,
-    },
-
-    isOnline: {
-      type: Boolean,
-      default: true,
-    },
-
-    createdAt: {
-      type: String,
-      default: () => formatIST(),
-    },
-
-    updatedAt: {
       type: String,
       default: () => formatIST(),
     },
