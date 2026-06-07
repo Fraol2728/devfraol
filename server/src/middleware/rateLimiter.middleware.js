@@ -27,4 +27,28 @@ const globalRateLimiter = rateLimit({
   legacyHeaders: false,
 });
 
-module.exports = { contactRateLimiter, githubRateLimiter, globalRateLimiter };
+const visitorTrackLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: 30,
+  message: { success: false, message: 'Too many tracking requests.' },
+  standardHeaders: true,
+  legacyHeaders: false,
+  keyGenerator: (req) => req.ip,
+});
+
+const heartbeatLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: 5,
+  message: { success: false, message: 'Too many heartbeat requests.' },
+  standardHeaders: true,
+  legacyHeaders: false,
+  keyGenerator: (req) => req.ip,
+});
+
+module.exports = {
+  contactRateLimiter,
+  githubRateLimiter,
+  globalRateLimiter,
+  visitorTrackLimiter,
+  heartbeatLimiter,
+};

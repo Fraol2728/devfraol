@@ -1,5 +1,7 @@
 const Contact = require('../models/Contact.model');
 
+const MAX_LIMIT = 100;
+
 const submitContact = async (req, res, next) => {
   try {
     const { name, email, subject, message } = req.body;
@@ -25,12 +27,13 @@ const submitContact = async (req, res, next) => {
 
 const getAllContacts = async (req, res, next) => {
   try {
-    const { status, page = 1, limit = 20 } = req.query;
+    const { status, page = 1 } = req.query;
+    const limit = Math.min(Math.max(Number(req.query.limit) || 20, 1), MAX_LIMIT);
     const filter = status ? { status } : {};
-    const skip = (Number(page) - 1) * Number(limit);
+    const skip = (Number(page) - 1) * limit;
 
     const [contacts, total] = await Promise.all([
-      Contact.find(filter).sort({ createdAt: -1 }).skip(skip).limit(Number(limit)).lean(),
+      Contact.find(filter).sort({ createdAt: -1 }).skip(skip).limit(limit).lean(),
       Contact.countDocuments(filter),
     ]);
 
@@ -39,9 +42,9 @@ const getAllContacts = async (req, res, next) => {
       data: contacts,
       pagination: {
         page: Number(page),
-        limit: Number(limit),
+        limit,
         total,
-        pages: Math.ceil(total / Number(limit)),
+        pages: Math.ceil(total / limit),
       },
     });
   } catch (err) {

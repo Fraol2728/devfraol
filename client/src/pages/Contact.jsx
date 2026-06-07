@@ -1,8 +1,9 @@
 import { CONTACT_INFO, OFFICE_HOURS } from "@/config/contact";
 import { validateContactForm } from "@/utils/helpers";
-import { motion } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import {
   Clock,
+  Edit2,
   Github,
   Linkedin,
   Mail,
@@ -11,17 +12,132 @@ import {
   MessageSquare,
   Phone,
   Send,
+  Timer,
+  X,
 } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 const API_URL = import.meta.env.VITE_API_URL;
 const INITIAL_FORM = { name: "", email: "", subject: "", message: "" };
+const PENDING_DURATION = 30;
 
 const Contact = () => {
   const [formData, setFormData] = useState(INITIAL_FORM);
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitStatus, setSubmitStatus] = useState("idle");
+  const [pendingData, setPendingData] = useState(null);
+  const [countdown, setCountdown] = useState(PENDING_DURATION);
+
+  const sendTimeoutRef = useRef(null);
+  const countdownIntervalRef = useRef(null);
+  const pendingDataRef = useRef(null);
+
+  useEffect(() => {
+    return () => {
+      clearTimeout(sendTimeoutRef.current);
+      clearInterval(countdownIntervalRef.current);
+    };
+  }, []);
+
+  const clearTimers = () => {
+    clearTimeout(sendTimeoutRef.current);
+    clearInterval(countdownIntervalRef.current);
+  };
+
+  const sendToAPI = async (data) => {
+    if (!API_URL) {
+      setSubmitStatus("error");
+      return;
+    }
+    setIsSubmitting(true);
+    try {
+      const response = await fetch(`${API_URL}/api/v1/contact`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      });
+      const result = await response.json();
+      if (response.ok && result.success) {
+        setSubmitStatus("success");
+      } else {
+        if (result.errors?.length) {
+          const serverErrors = {};
+          result.errors.forEach(({ field, message }) => {
+            serverErrors[field] = message;
+          });
+          setErrors(serverErrors);
+        }
+        setSubmitStatus("error");
+      }
+    } catch {
+      setSubmitStatus("error");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const startPending = (data) => {
+    pendingDataRef.current = data;
+    setPendingData(data);
+    setCountdown(PENDING_DURATION);
+
+    countdownIntervalRef.current = setInterval(() => {
+      setCountdown((prev) => {
+        if (prev <= 1) {
+          clearInterval(countdownIntervalRef.current);
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+
+    sendTimeoutRef.current = setTimeout(() => {
+      const toSend = pendingDataRef.current;
+      pendingDataRef.current = null;
+      setPendingData(null);
+      setCountdown(PENDING_DURATION);
+      if (toSend) sendToAPI(toSend);
+    }, PENDING_DURATION * 1000);
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    setSubmitStatus("idle");
+
+    const validationErrors = validateContactForm(formData);
+    if (Object.keys(validationErrors).length > 0) {
+      setErrors(validationErrors);
+      return;
+    }
+
+    clearTimers();
+    const snapshot = { ...formData };
+    setFormData(INITIAL_FORM);
+    setErrors({});
+    startPending(snapshot);
+  };
+
+  const handleEdit = () => {
+    clearTimers();
+    setFormData({ ...pendingDataRef.current });
+    pendingDataRef.current = null;
+    setPendingData(null);
+    setCountdown(PENDING_DURATION);
+    setSubmitStatus("idle");
+  };
+
+  const handleCancel = () => {
+    clearTimers();
+    pendingDataRef.current = null;
+    setPendingData(null);
+    setCountdown(PENDING_DURATION);
+  };
+
+  const handleChange = (field) => (e) => {
+    setFormData((prev) => ({ ...prev, [field]: e.target.value }));
+    if (errors[field]) setErrors((prev) => ({ ...prev, [field]: undefined }));
+  };
 
   const contactInfo = [
     {
@@ -66,57 +182,7 @@ const Contact = () => {
     },
   ];
 
-  const handleChange = (field) => (e) => {
-    setFormData((prev) => ({ ...prev, [field]: e.target.value }));
-    if (errors[field]) setErrors((prev) => ({ ...prev, [field]: undefined }));
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setSubmitStatus("idle");
-
-    const validationErrors = validateContactForm(formData);
-    if (Object.keys(validationErrors).length > 0) {
-      setErrors(validationErrors);
-      return;
-    }
-
-    if (!API_URL) {
-      setSubmitStatus("error");
-      return;
-    }
-
-    setIsSubmitting(true);
-
-    try {
-      const response = await fetch(`${API_URL}/api/v1/contact`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
-      });
-
-      const data = await response.json();
-
-      if (response.ok && data.success) {
-        setSubmitStatus("success");
-        setFormData(INITIAL_FORM);
-        setErrors({});
-      } else {
-        if (data.errors?.length) {
-          const serverErrors = {};
-          data.errors.forEach(({ field, message }) => {
-            serverErrors[field] = message;
-          });
-          setErrors(serverErrors);
-        }
-        setSubmitStatus("error");
-      }
-    } catch {
-      setSubmitStatus("error");
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
+  const progressPct = (countdown / PENDING_DURATION) * 100;
 
   return (
     <div className="min-h-screen pt-16 sm:pt-20 px-4 max-w-6xl mx-auto pb-16 sm:pb-20">
@@ -138,6 +204,7 @@ const Contact = () => {
         </motion.div>
 
         <div className="grid lg:grid-cols-[1fr,1.5fr] gap-8 sm:gap-12">
+          {/* Left: contact info */}
           <div className="space-y-6 sm:space-y-8">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -241,6 +308,7 @@ const Contact = () => {
             </motion.div>
           </div>
 
+          {/* Right: form box — pending card lives inside here */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -250,6 +318,7 @@ const Contact = () => {
             <h3 className="text-lg sm:text-xl font-semibold mb-6">
               Send a Message
             </h3>
+
             <form
               onSubmit={handleSubmit}
               className="space-y-5 sm:space-y-6"
@@ -360,7 +429,7 @@ const Contact = () => {
 
               <button
                 type="submit"
-                disabled={isSubmitting}
+                disabled={isSubmitting || !!pendingData}
                 className="w-full flex items-center justify-center gap-2 px-6 py-3 bg-white text-black rounded-lg font-medium hover:bg-gray-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:text-base"
               >
                 {isSubmitting ? (
@@ -375,6 +444,90 @@ const Contact = () => {
                   </>
                 )}
               </button>
+
+              {/* Pending card — inside the form box, below the button */}
+              <AnimatePresence>
+                {pendingData && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 12 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: 12 }}
+                    transition={{ duration: 0.3 }}
+                    className="border border-amber-500/30 bg-amber-500/5 rounded-xl p-4"
+                  >
+                    {/* Header */}
+                    <div className="flex items-center justify-between mb-3">
+                      <div className="flex items-center gap-2 text-amber-400">
+                        <Timer className="w-4 h-4 shrink-0" />
+                        <span className="text-sm font-medium">
+                          Sending in {countdown}s — you can still edit or cancel
+                        </span>
+                      </div>
+                      <span className="text-amber-400 font-mono font-bold tabular-nums text-sm ml-2 shrink-0">
+                        {countdown}s
+                      </span>
+                    </div>
+
+                    {/* Progress bar */}
+                    <div className="w-full h-1 bg-white/10 rounded-full mb-4 overflow-hidden">
+                      <motion.div
+                        className="h-full bg-amber-400 rounded-full"
+                        initial={{ width: "100%" }}
+                        animate={{ width: `${progressPct}%` }}
+                        transition={{ duration: 0.9, ease: "linear" }}
+                      />
+                    </div>
+
+                    {/* Data preview */}
+                    <div className="grid grid-cols-2 gap-2 mb-4 text-sm">
+                      <div className="bg-white/5 rounded-lg px-3 py-2">
+                        <p className="text-gray-400 text-xs mb-0.5">Name</p>
+                        <p className="text-white truncate">
+                          {pendingData.name}
+                        </p>
+                      </div>
+                      <div className="bg-white/5 rounded-lg px-3 py-2">
+                        <p className="text-gray-400 text-xs mb-0.5">Email</p>
+                        <p className="text-white truncate">
+                          {pendingData.email}
+                        </p>
+                      </div>
+                      <div className="bg-white/5 rounded-lg px-3 py-2">
+                        <p className="text-gray-400 text-xs mb-0.5">Subject</p>
+                        <p className="text-white truncate">
+                          {pendingData.subject}
+                        </p>
+                      </div>
+                      <div className="bg-white/5 rounded-lg px-3 py-2">
+                        <p className="text-gray-400 text-xs mb-0.5">Message</p>
+                        <p className="text-white line-clamp-1">
+                          {pendingData.message}
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Actions */}
+                    <div className="flex gap-2">
+                      <button
+                        type="button"
+                        onClick={handleEdit}
+                        className="flex items-center gap-2 px-4 py-2 rounded-lg bg-white/10 hover:bg-white/20 text-white text-sm font-medium transition-colors"
+                      >
+                        <Edit2 className="w-3.5 h-3.5" />
+                        Edit
+                      </button>
+                      <button
+                        type="button"
+                        onClick={handleCancel}
+                        className="flex items-center gap-2 px-4 py-2 rounded-lg bg-red-500/10 hover:bg-red-500/20 text-red-400 text-sm font-medium transition-colors border border-red-500/20"
+                      >
+                        <X className="w-3.5 h-3.5" />
+                        Cancel
+                      </button>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </form>
           </motion.div>
         </div>

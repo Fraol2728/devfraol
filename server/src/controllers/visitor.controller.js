@@ -13,9 +13,6 @@ const formatIST = (date = new Date()) =>
     hour12: true,
   }).format(date);
 
-const getIP = (req) =>
-  req.headers['x-forwarded-for']?.split(',')[0]?.trim() || req.socket.remoteAddress || req.ip;
-
 const trackVisitor = async (req, res, next) => {
   try {
     const { path, newSession } = req.body;
@@ -24,7 +21,7 @@ const trackVisitor = async (req, res, next) => {
       return res.status(400).json({ success: false, message: 'path required' });
     }
 
-    const ipAddress = getIP(req);
+    const ipAddress = req.ip; // normalized by Express via trust proxy
     const parser = new UAParser(req.headers['user-agent']);
     const browser = parser.getBrowser();
     const os = parser.getOS();
@@ -41,13 +38,12 @@ const trackVisitor = async (req, res, next) => {
         pagesVisited: [path],
         visitCount: 1,
       });
-
       return res.json({ success: true });
     }
 
     const update = {
       lastSeenAt: formatIST(),
-      $push: { pagesVisited: path },
+      $push: { pagesVisited: { $each: [path], $slice: -100 } },
     };
 
     if (newSession) {
@@ -55,7 +51,6 @@ const trackVisitor = async (req, res, next) => {
     }
 
     await Visitor.findOneAndUpdate({ ipAddress }, update);
-
     return res.json({ success: true });
   } catch (error) {
     next(error);
@@ -64,7 +59,7 @@ const trackVisitor = async (req, res, next) => {
 
 const heartbeat = async (req, res, next) => {
   try {
-    const ipAddress = getIP(req);
+    const ipAddress = req.ip;
     await Visitor.findOneAndUpdate({ ipAddress }, { lastSeenAt: formatIST() });
     return res.json({ success: true });
   } catch (error) {
