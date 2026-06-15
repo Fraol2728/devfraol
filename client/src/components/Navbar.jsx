@@ -13,7 +13,6 @@ const navLinks = [
   { path: "/projects", label: "Projects" },
   { path: "/certificates", label: "Certificates" },
   { path: "/contact", label: "Contact" },
-  // { path: "/analytics", label: "Analytics" },
 ];
 
 const Navbar = () => {
@@ -57,13 +56,13 @@ const Navbar = () => {
               </Link>
             </div>
 
-            {/* Center — Search (desktop) */}
-            <div className="hidden md:flex flex-1 justify-center">
+            {/* Center — Full search bar (lg+ only) */}
+            <div className="hidden lg:flex flex-1 justify-center">
               <SearchDialog />
             </div>
 
-            {/* Right — Nav links (desktop) */}
-            <div className="hidden md:flex flex-shrink-0 items-center space-x-1">
+            {/* Right — Nav links (md+) */}
+            <div className="hidden md:flex flex-shrink-0 items-center space-x-1 ml-auto lg:ml-0">
               {navLinks.map((link) => (
                 <Link
                   key={link.path}
@@ -77,15 +76,19 @@ const Navbar = () => {
                     location.pathname === link.path ? "page" : undefined
                   }
                 >
-                  {link.icon && link.icon}
                   {link.label}
                 </Link>
               ))}
+
+              {/* Icon-only search for md–lg range */}
+              <div className="lg:hidden ml-1">
+                <SearchDialog iconOnly />
+              </div>
             </div>
 
-            {/* Mobile — Search + Hamburger */}
-            <div className="flex md:hidden items-center space-x-2 ml-auto">
-              <SearchDialog />
+            {/* Mobile — Search icon + Hamburger (below md) */}
+            <div className="flex md:hidden items-center ml-auto">
+              <SearchDialog iconOnly />
               <button
                 className="p-2 text-gray-400 hover:text-white transition-colors"
                 onClick={() => setIsMenuOpen((prev) => !prev)}
@@ -102,7 +105,7 @@ const Navbar = () => {
           </div>
         </div>
 
-        {/* Mobile menu */}
+        {/* Mobile menu dropdown */}
         {isMenuOpen && (
           <motion.div
             className="md:hidden absolute top-full left-0 right-0 bg-black/50 backdrop-blur-xl"
@@ -125,7 +128,6 @@ const Navbar = () => {
                     location.pathname === link.path ? "page" : undefined
                   }
                 >
-                  {link.icon && link.icon}
                   {link.label}
                 </Link>
               ))}

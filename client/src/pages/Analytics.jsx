@@ -1,17 +1,10 @@
 import { ScrollAnimation } from "@/components/ScrollAnimation";
 import { AnimatePresence, motion } from "framer-motion";
-import {
-  BarChart2,
-  Lock,
-  RefreshCw,
-  Repeat2,
-  TrendingUp,
-  Users,
-} from "lucide-react";
+import { BarChart2, RefreshCw, Repeat2, TrendingUp, Users } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 const API_URL = import.meta.env.VITE_API_URL;
-const SESSION_KEY = "analytics_admin_key";
+const COOLDOWN_SEC = 30;
 
 const CHART_PERIODS = [
   { key: "today", label: "Today" },
@@ -177,7 +170,7 @@ const getPageCounts = (visitors) => {
 
 // ── Column Chart ──────────────────────────────────────────────────────────────
 
-const ColumnChart = ({ data, chartPeriod }) => {
+const ColumnChart = ({ data }) => {
   const [tooltip, setTooltip] = useState(null);
 
   const n = data.length;
@@ -206,7 +199,6 @@ const ColumnChart = ({ data, chartPeriod }) => {
     const barH = Math.max((d.value / maxVal) * chartH, 2);
     const barCenterX = pL + spacing + i * (barW + spacing) + barW / 2;
     const barTopY = pT + chartH - barH;
-
     setTooltip({
       idx: i,
       leftPct: (barCenterX / W) * 100,
@@ -217,143 +209,149 @@ const ColumnChart = ({ data, chartPeriod }) => {
   };
 
   return (
-    <div className="relative w-full" onMouseLeave={() => setTooltip(null)}>
-      <AnimatePresence>
-        {tooltip && (
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95, y: -4 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.95 }}
-            transition={{ duration: 0.12 }}
-            className="absolute z-50 pointer-events-none"
-            style={{
-              left: `${tooltip.leftPct}%`,
-              top: `${tooltip.topPct}%`,
-              transform: "translate(-50%, -115%)",
-            }}
-          >
-            <div
-              style={{
-                background: "rgba(10, 10, 14, 0.95)",
-                border: "1px solid rgba(255,255,255,0.08)",
-                borderRadius: "10px",
-                padding: "8px 13px",
-                boxShadow: "0 12px 32px rgba(0,0,0,0.65)",
-                backdropFilter: "blur(12px)",
-                WebkitBackdropFilter: "blur(12px)",
-                whiteSpace: "nowrap",
-                textAlign: "center",
-              }}
-            >
-              <p
+    <div className="overflow-x-auto -mx-2 px-2">
+      <div className="min-w-[320px]">
+        <div className="relative w-full" onMouseLeave={() => setTooltip(null)}>
+          <AnimatePresence>
+            {tooltip && (
+              <motion.div
+                initial={{ opacity: 0, scale: 0.95, y: -4 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.95 }}
+                transition={{ duration: 0.12 }}
+                className="absolute z-50 pointer-events-none"
                 style={{
-                  color: "#fff",
-                  fontSize: "13px",
-                  fontWeight: 600,
-                  lineHeight: 1.3,
-                  margin: 0,
+                  left: `${tooltip.leftPct}%`,
+                  top: `${tooltip.topPct}%`,
+                  transform: "translate(-50%, -115%)",
                 }}
               >
-                {tooltip.value} visitor{tooltip.value !== 1 ? "s" : ""}
-              </p>
-              {tooltip.label && (
-                <p
+                <div
                   style={{
-                    color: "#9ca3af",
-                    fontSize: "11px",
-                    lineHeight: 1.3,
-                    margin: "3px 0 0",
+                    background: "rgba(10,10,14,0.95)",
+                    border: "1px solid rgba(255,255,255,0.08)",
+                    borderRadius: "10px",
+                    padding: "8px 13px",
+                    boxShadow: "0 12px 32px rgba(0,0,0,0.65)",
+                    backdropFilter: "blur(12px)",
+                    WebkitBackdropFilter: "blur(12px)",
+                    whiteSpace: "nowrap",
+                    textAlign: "center",
                   }}
                 >
-                  {tooltip.label}
-                </p>
-              )}
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      <svg
-        viewBox={`0 0 ${W} ${H}`}
-        className="w-full h-auto overflow-visible"
-        preserveAspectRatio="xMidYMid meet"
-      >
-        {[1, 0.75, 0.5, 0.25, 0].map((ratio, gi) => {
-          const y = pT + chartH * (1 - ratio);
-          return (
-            <g key={gi}>
-              <line
-                x1={pL}
-                y1={y}
-                x2={W - pR}
-                y2={y}
-                stroke="rgba(255,255,255,0.06)"
-                strokeWidth="1"
-                strokeDasharray={ratio === 1 ? "none" : "3,3"}
-              />
-              <text
-                x={pL - 6}
-                y={y + 4}
-                textAnchor="end"
-                fill="#4b5563"
-                fontSize="10"
-              >
-                {Math.round(maxVal * ratio)}
-              </text>
-            </g>
-          );
-        })}
-
-        {data.map((d, i) => {
-          const barH = Math.max(
-            (d.value / maxVal) * chartH,
-            d.value > 0 ? 2 : 0,
-          );
-          const x = pL + spacing + i * (barW + spacing);
-          const y = pT + chartH - barH;
-          const active = tooltip?.idx === i;
-          return (
-            <g key={i}>
-              <rect
-                x={x}
-                y={pT}
-                width={barW}
-                height={chartH}
-                fill={
-                  active ? "rgba(255,255,255,0.055)" : "rgba(255,255,255,0.025)"
-                }
-                rx="3"
-                onMouseEnter={() => handleBarEnter(i, d)}
-                style={{ cursor: d.value > 0 ? "pointer" : "default" }}
-              />
-              {d.value > 0 && (
-                <rect
-                  x={x}
-                  y={y}
-                  width={barW}
-                  height={barH}
-                  fill={
-                    active ? "rgba(255,255,255,0.92)" : "rgba(255,255,255,0.72)"
-                  }
-                  rx="3"
-                  style={{ pointerEvents: "none" }}
-                />
-              )}
-              {d.label && (
-                <text
-                  x={x + barW / 2}
-                  y={H - 8}
-                  textAnchor="middle"
-                  fill="#4b5563"
-                  fontSize="10"
-                >
-                  {d.label}
-                </text>
-              )}
-            </g>
-          );
-        })}
-      </svg>
+                  <p
+                    style={{
+                      color: "#fff",
+                      fontSize: "13px",
+                      fontWeight: 600,
+                      lineHeight: 1.3,
+                      margin: 0,
+                    }}
+                  >
+                    {tooltip.value} visitor{tooltip.value !== 1 ? "s" : ""}
+                  </p>
+                  {tooltip.label && (
+                    <p
+                      style={{
+                        color: "#9ca3af",
+                        fontSize: "11px",
+                        lineHeight: 1.3,
+                        margin: "3px 0 0",
+                      }}
+                    >
+                      {tooltip.label}
+                    </p>
+                  )}
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+          <svg
+            viewBox={`0 0 ${W} ${H}`}
+            className="w-full h-auto overflow-visible"
+            preserveAspectRatio="xMidYMid meet"
+          >
+            {[1, 0.75, 0.5, 0.25, 0].map((ratio, gi) => {
+              const y = pT + chartH * (1 - ratio);
+              return (
+                <g key={gi}>
+                  <line
+                    x1={pL}
+                    y1={y}
+                    x2={W - pR}
+                    y2={y}
+                    stroke="rgba(255,255,255,0.06)"
+                    strokeWidth="1"
+                    strokeDasharray={ratio === 1 ? "none" : "3,3"}
+                  />
+                  <text
+                    x={pL - 6}
+                    y={y + 4}
+                    textAnchor="end"
+                    fill="#4b5563"
+                    fontSize="10"
+                  >
+                    {Math.round(maxVal * ratio)}
+                  </text>
+                </g>
+              );
+            })}
+            {data.map((d, i) => {
+              const barH = Math.max(
+                (d.value / maxVal) * chartH,
+                d.value > 0 ? 2 : 0,
+              );
+              const x = pL + spacing + i * (barW + spacing);
+              const y = pT + chartH - barH;
+              const active = tooltip?.idx === i;
+              return (
+                <g key={i}>
+                  <rect
+                    x={x}
+                    y={pT}
+                    width={barW}
+                    height={chartH}
+                    fill={
+                      active
+                        ? "rgba(255,255,255,0.055)"
+                        : "rgba(255,255,255,0.025)"
+                    }
+                    rx="3"
+                    onMouseEnter={() => handleBarEnter(i, d)}
+                    style={{ cursor: d.value > 0 ? "pointer" : "default" }}
+                  />
+                  {d.value > 0 && (
+                    <rect
+                      x={x}
+                      y={y}
+                      width={barW}
+                      height={barH}
+                      fill={
+                        active
+                          ? "rgba(255,255,255,0.92)"
+                          : "rgba(255,255,255,0.72)"
+                      }
+                      rx="3"
+                      style={{ pointerEvents: "none" }}
+                    />
+                  )}
+                  {d.label && (
+                    <text
+                      x={x + barW / 2}
+                      y={H - 8}
+                      textAnchor="middle"
+                      fill="#4b5563"
+                      fontSize="10"
+                    >
+                      {d.label}
+                    </text>
+                  )}
+                </g>
+              );
+            })}
+          </svg>
+        </div>
+      </div>
     </div>
   );
 };
@@ -369,90 +367,124 @@ const HorizontalBarChart = ({ data }) => {
     );
 
   const maxVal = Math.max(...data.map((d) => d[1]), 1);
-  const rowH = 26;
-  const barH = 14;
-  const barPadT = (rowH - barH) / 2;
-  const H = data.length * rowH + 12;
-  const W = 560;
-  const labelW = 110;
-  const countW = 40;
-  const barAreaW = W - labelW - countW;
+  const rowH = 28,
+    barH = 14,
+    barPadT = (rowH - barH) / 2;
+  const H = data.length * rowH + 16,
+    W = 500;
+  const labelW = 90,
+    countW = 36,
+    barAreaW = W - labelW - countW;
 
   return (
-    <svg
-      viewBox={`0 0 ${W} ${H}`}
-      className="w-full"
-      preserveAspectRatio="xMidYMid meet"
-    >
-      {data.map(([page, count], i) => {
-        const bW = Math.max((count / maxVal) * barAreaW, count > 0 ? 3 : 0);
-        const y = i * rowH + 6;
-        // Exact vertical midpoint calculation for elements inside this row
-        const centerY = y + barPadT + barH / 2;
-
-        return (
-          <g key={page}>
-            <text
-              x={labelW - 8}
-              y={centerY}
-              textAnchor="end"
-              dominantBaseline="central"
-              fill="#6b7280"
-              fontSize="11"
-            >
-              {page === "/" ? "/home" : page}
-            </text>
-            <rect
-              x={labelW}
-              y={y + barPadT}
-              width={barAreaW}
-              height={barH}
-              fill="rgba(255,255,255,0.04)"
-              rx="3"
-            />
-            <rect
-              x={labelW}
-              y={y + barPadT}
-              width={bW}
-              height={barH}
-              fill="rgba(255,255,255,0.72)"
-              rx="3"
-            />
-            <text
-              x={labelW + barAreaW + 8}
-              y={centerY}
-              dominantBaseline="central"
-              fill="white"
-              fontSize="11"
-              fontWeight="600"
-            >
-              {count}
-            </text>
-          </g>
-        );
-      })}
-    </svg>
+    <div className="overflow-x-auto -mx-2 px-2">
+      <div className="min-w-[280px]">
+        <svg
+          viewBox={`0 0 ${W} ${H}`}
+          className="w-full"
+          preserveAspectRatio="xMidYMid meet"
+        >
+          {data.map(([page, count], i) => {
+            const bW = Math.max((count / maxVal) * barAreaW, count > 0 ? 3 : 0);
+            const y = i * rowH + 8,
+              centerY = y + barPadT + barH / 2;
+            return (
+              <g key={page}>
+                <text
+                  x={labelW - 8}
+                  y={centerY}
+                  textAnchor="end"
+                  dominantBaseline="central"
+                  fill="#6b7280"
+                  fontSize="11"
+                >
+                  {page === "/" ? "/home" : page}
+                </text>
+                <rect
+                  x={labelW}
+                  y={y + barPadT}
+                  width={barAreaW}
+                  height={barH}
+                  fill="rgba(255,255,255,0.04)"
+                  rx="3"
+                />
+                <rect
+                  x={labelW}
+                  y={y + barPadT}
+                  width={bW}
+                  height={barH}
+                  fill="rgba(255,255,255,0.72)"
+                  rx="3"
+                />
+                <text
+                  x={labelW + barAreaW + 8}
+                  y={centerY}
+                  dominantBaseline="central"
+                  fill="white"
+                  fontSize="11"
+                  fontWeight="600"
+                >
+                  {count}
+                </text>
+              </g>
+            );
+          })}
+        </svg>
+      </div>
+    </div>
   );
 };
+
+// ── Period Tab Bar ────────────────────────────────────────────────────────────
+
+const PeriodTabs = ({ periods, active, onChange }) => (
+  <div className="flex gap-1 overflow-x-auto pb-1 scrollbar-none flex-shrink-0">
+    {periods.map(({ key, label }) => (
+      <button
+        key={key}
+        onClick={() => onChange(key)}
+        className={`px-3 py-1 rounded-full text-xs font-medium transition-colors whitespace-nowrap flex-shrink-0 ${
+          active === key
+            ? "bg-white text-black"
+            : "bg-white/10 text-gray-400 hover:bg-white/15 hover:text-white"
+        }`}
+      >
+        {label}
+      </button>
+    ))}
+  </div>
+);
 
 // ── Main Component ────────────────────────────────────────────────────────────
 
 const Analytics = () => {
-  const [adminKey, setAdminKey] = useState(
-    () => sessionStorage.getItem(SESSION_KEY) || "",
-  );
-  const [keyInput, setKeyInput] = useState("");
-  const [isAuthed, setIsAuthed] = useState(
-    () => !!sessionStorage.getItem(SESSION_KEY),
-  );
   const [visitors, setVisitors] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [chartPeriod, setChartPeriod] = useState("today");
   const [activePeriodTab, setActivePeriodTab] = useState("today");
   const [lastFetched, setLastFetched] = useState(null);
+  const [cooldown, setCooldown] = useState(0);
 
-  const fetchData = useCallback(async (key) => {
+  const cooldownRef = useRef(null);
+
+  const startCooldown = useCallback(() => {
+    clearInterval(cooldownRef.current);
+    setCooldown(COOLDOWN_SEC);
+    cooldownRef.current = setInterval(() => {
+      setCooldown((prev) => {
+        if (prev <= 1) {
+          clearInterval(cooldownRef.current);
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+  }, []);
+
+  useEffect(() => () => clearInterval(cooldownRef.current), []);
+
+  const fetchData = useCallback(async () => {
     if (!API_URL) {
       setError("API URL not configured.");
       return;
@@ -460,16 +492,7 @@ const Analytics = () => {
     setLoading(true);
     setError("");
     try {
-      const res = await fetch(`${API_URL}/api/v1/visitors`, {
-        headers: { "X-Admin-Key": key },
-      });
-      if (res.status === 401) {
-        setError("Invalid admin key.");
-        sessionStorage.removeItem(SESSION_KEY);
-        setIsAuthed(false);
-        setAdminKey("");
-        return;
-      }
+      const res = await fetch(`${API_URL}/api/v1/visitors`);
       if (!res.ok) throw new Error(`Server error: ${res.status}`);
       const json = await res.json();
       setVisitors(json.data || []);
@@ -478,73 +501,45 @@ const Analytics = () => {
       setError(e.message || "Failed to fetch data.");
     } finally {
       setLoading(false);
+      startCooldown();
     }
-  }, []);
+  }, [startCooldown]);
 
   useEffect(() => {
-    if (isAuthed && adminKey) fetchData(adminKey);
-  }, [isAuthed, adminKey, fetchData]);
+    fetchData();
+  }, [fetchData]);
 
-  const handleKeySubmit = (e) => {
-    e.preventDefault();
-    if (!keyInput.trim()) return;
-    const k = keyInput.trim();
-    sessionStorage.setItem(SESSION_KEY, k);
-    setAdminKey(k);
-    setIsAuthed(true);
-  };
+  const isRefreshDisabled = loading || cooldown > 0;
 
   const chartData = getChartData(visitors, chartPeriod);
   const chartTotal = chartData.reduce((s, d) => s + d.value, 0);
   const filteredVisitors = filterByPeriod(visitors, activePeriodTab);
   const pageData = getPageCounts(filteredVisitors);
 
-  if (!isAuthed) {
-    return (
-      <div className="min-h-screen flex items-center justify-center px-4">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="w-full max-w-sm"
-        >
-          <div className="bg-gray-800/50 border border-white/10 rounded-2xl p-8 backdrop-blur-sm">
-            <div className="flex items-center gap-3 mb-6">
-              <Lock className="w-6 h-6 text-gray-400" />
-              <h2 className="text-xl font-semibold text-white">Admin Access</h2>
-            </div>
-            <p className="text-gray-400 text-sm mb-6">
-              Enter your admin API key to view analytics.
-            </p>
-            <form onSubmit={handleKeySubmit} className="space-y-4">
-              <input
-                type="password"
-                value={keyInput}
-                onChange={(e) => setKeyInput(e.target.value)}
-                placeholder="Admin API key"
-                className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-white/30 transition-colors text-sm"
-                autoFocus
-              />
-              {error && <p className="text-red-400 text-sm">{error}</p>}
-              <button
-                type="submit"
-                className="w-full py-3 bg-white text-black rounded-lg font-medium hover:bg-gray-100 transition-colors text-sm"
-              >
-                Access Analytics
-              </button>
-            </form>
-          </div>
-        </motion.div>
-      </div>
-    );
-  }
+  const dateLabel =
+    chartPeriod === "today"
+      ? new Date().toLocaleDateString("en-IN", {
+          day: "numeric",
+          month: "short",
+          year: "numeric",
+        })
+      : chartPeriod === "month"
+        ? new Date().toLocaleDateString("en-IN", {
+            month: "long",
+            year: "numeric",
+          })
+        : new Date().getFullYear();
 
   return (
-    <div className="min-h-screen pt-20 px-4 max-w-6xl mx-auto pb-20">
+    <div className="min-h-screen pt-20 px-3 sm:px-4 max-w-6xl mx-auto pb-20">
+      {/* ── Page Header ── */}
       <ScrollAnimation>
-        <div className="flex items-center justify-between mb-10 flex-wrap gap-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-8 sm:mb-10 gap-3 sm:gap-4">
           <div className="flex items-center gap-3">
-            <BarChart2 className="w-8 h-8" />
-            <h2 className="text-4xl font-bold gradient-text">Analytics</h2>
+            <BarChart2 className="w-7 h-7 sm:w-8 sm:h-8" />
+            <h2 className="text-3xl sm:text-4xl font-bold gradient-text">
+              Analytics
+            </h2>
           </div>
           <div className="flex items-center gap-3">
             {lastFetched && (
@@ -553,25 +548,37 @@ const Analytics = () => {
               </span>
             )}
             <button
-              onClick={() => fetchData(adminKey)}
-              disabled={loading}
-              className="flex items-center gap-2 px-4 py-2 bg-white/10 hover:bg-white/15 text-white rounded-lg text-sm transition-colors disabled:opacity-50"
+              onClick={fetchData}
+              disabled={isRefreshDisabled}
+              title={
+                cooldown > 0 ? `Available in ${cooldown}s` : "Refresh data"
+              }
+              className={`relative flex items-center gap-2 px-3 sm:px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 overflow-hidden
+                ${
+                  isRefreshDisabled
+                    ? "bg-white/5 text-gray-500 cursor-not-allowed"
+                    : "bg-white/10 hover:bg-white/15 text-white cursor-pointer"
+                }`}
             >
+              {/* cooldown progress bar */}
+              {cooldown > 0 && (
+                <motion.div
+                  className="absolute inset-0 bg-white/5 origin-left"
+                  initial={{ scaleX: 1 }}
+                  animate={{ scaleX: 0 }}
+                  transition={{ duration: COOLDOWN_SEC, ease: "linear" }}
+                />
+              )}
               <RefreshCw
-                className={`w-4 h-4 ${loading ? "animate-spin" : ""}`}
+                className={`w-4 h-4 relative z-10 ${loading ? "animate-spin" : ""}`}
               />
-              Refresh
-            </button>
-            <button
-              onClick={() => {
-                sessionStorage.removeItem(SESSION_KEY);
-                setIsAuthed(false);
-                setAdminKey("");
-                setVisitors([]);
-              }}
-              className="px-4 py-2 bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white rounded-lg text-sm transition-colors"
-            >
-              Sign out
+              <span className="relative z-10 min-w-[60px] text-center">
+                {loading
+                  ? "Loading…"
+                  : cooldown > 0
+                    ? `${cooldown}s`
+                    : "Refresh"}
+              </span>
             </button>
           </div>
         </div>
@@ -591,42 +598,23 @@ const Analytics = () => {
         <>
           {/* ── Visitor Count ── */}
           <ScrollAnimation>
-            <div className="bg-gray-800/50 border border-white/5 rounded-xl p-6 backdrop-blur-sm mb-6">
-              <div className="flex items-center flex-wrap gap-3 mb-6">
-                <Users className="w-5 h-5 text-gray-400" />
-                <h3 className="text-lg font-semibold text-white">
-                  Visitor Count
-                </h3>
-                <span className="text-xs text-gray-500">
-                  {chartTotal} visitor{chartTotal !== 1 ? "s" : ""} ·{" "}
-                  {chartPeriod === "today"
-                    ? new Date().toLocaleDateString("en-IN", {
-                        day: "numeric",
-                        month: "short",
-                        year: "numeric",
-                      })
-                    : chartPeriod === "month"
-                      ? new Date().toLocaleDateString("en-IN", {
-                          month: "long",
-                          year: "numeric",
-                        })
-                      : new Date().getFullYear()}
-                </span>
-                <div className="ml-auto flex gap-1">
-                  {CHART_PERIODS.map(({ key, label }) => (
-                    <button
-                      key={key}
-                      onClick={() => setChartPeriod(key)}
-                      className={`px-3 py-1 rounded-full text-xs font-medium transition-colors ${
-                        chartPeriod === key
-                          ? "bg-white text-black"
-                          : "bg-white/10 text-gray-400 hover:bg-white/15 hover:text-white"
-                      }`}
-                    >
-                      {label}
-                    </button>
-                  ))}
+            <div className="bg-gray-800/50 border border-white/5 rounded-xl p-4 sm:p-6 backdrop-blur-sm mb-4 sm:mb-6">
+              <div className="flex flex-col gap-3 mb-4 sm:mb-6">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <Users className="w-5 h-5 text-gray-400 flex-shrink-0" />
+                  <h3 className="text-base sm:text-lg font-semibold text-white">
+                    Visitor Count
+                  </h3>
+                  <span className="text-xs text-gray-500">
+                    {chartTotal} visitor{chartTotal !== 1 ? "s" : ""} ·{" "}
+                    {dateLabel}
+                  </span>
                 </div>
+                <PeriodTabs
+                  periods={CHART_PERIODS}
+                  active={chartPeriod}
+                  onChange={setChartPeriod}
+                />
               </div>
               <AnimatePresence mode="wait">
                 <motion.div
@@ -636,7 +624,7 @@ const Analytics = () => {
                   exit={{ opacity: 0, y: -6 }}
                   transition={{ duration: 0.2 }}
                 >
-                  <ColumnChart data={chartData} chartPeriod={chartPeriod} />
+                  <ColumnChart data={chartData} />
                 </motion.div>
               </AnimatePresence>
             </div>
@@ -644,27 +632,19 @@ const Analytics = () => {
 
           {/* ── Most Visited Pages ── */}
           <ScrollAnimation>
-            <div className="bg-gray-800/50 border border-white/5 rounded-xl p-6 backdrop-blur-sm mb-6">
-              <div className="flex items-center gap-2 mb-5 flex-wrap gap-y-3">
-                <TrendingUp className="w-5 h-5 text-gray-400" />
-                <h3 className="text-lg font-semibold text-white">
-                  Most Visited Pages
-                </h3>
-                <div className="ml-auto flex gap-1 flex-wrap">
-                  {PAGE_PERIODS.map(({ key, label }) => (
-                    <button
-                      key={key}
-                      onClick={() => setActivePeriodTab(key)}
-                      className={`px-3 py-1 rounded-full text-xs font-medium transition-colors ${
-                        activePeriodTab === key
-                          ? "bg-white text-black"
-                          : "bg-white/10 text-gray-400 hover:bg-white/15 hover:text-white"
-                      }`}
-                    >
-                      {label}
-                    </button>
-                  ))}
+            <div className="bg-gray-800/50 border border-white/5 rounded-xl p-4 sm:p-6 backdrop-blur-sm mb-4 sm:mb-6">
+              <div className="flex flex-col gap-3 mb-4 sm:mb-5">
+                <div className="flex items-center gap-2">
+                  <TrendingUp className="w-5 h-5 text-gray-400 flex-shrink-0" />
+                  <h3 className="text-base sm:text-lg font-semibold text-white">
+                    Most Visited Pages
+                  </h3>
                 </div>
+                <PeriodTabs
+                  periods={PAGE_PERIODS}
+                  active={activePeriodTab}
+                  onChange={setActivePeriodTab}
+                />
               </div>
               <AnimatePresence mode="wait">
                 <motion.div
@@ -682,10 +662,10 @@ const Analytics = () => {
 
           {/* ── Repeat Visitors ── */}
           <ScrollAnimation>
-            <div className="bg-gray-800/50 border border-white/5 rounded-xl p-6 backdrop-blur-sm">
+            <div className="bg-gray-800/50 border border-white/5 rounded-xl p-4 sm:p-6 backdrop-blur-sm">
               <div className="flex items-center gap-2 mb-6">
                 <Repeat2 className="w-5 h-5 text-gray-400" />
-                <h3 className="text-lg font-semibold text-white">
+                <h3 className="text-base sm:text-lg font-semibold text-white">
                   Repeat Visitors
                 </h3>
                 <span className="text-xs text-gray-500 ml-1">

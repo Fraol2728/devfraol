@@ -3,12 +3,22 @@ import { useNavigate } from "react-router-dom";
 import { Search, Command, ArrowRight } from "lucide-react";
 import { searchData } from "@/config/searchData";
 
-const SearchDialog = () => {
+const isMac = () =>
+  typeof navigator !== "undefined" &&
+  (/Mac|iPod|iPhone|iPad/.test(navigator.platform) ||
+    navigator.userAgentData?.platform === "macOS");
+
+const SearchDialog = ({ iconOnly = false }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [results, setResults] = useState(searchData);
   const [selectedIndex, setSelectedIndex] = useState(0);
+  const [mac, setMac] = useState(false);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    setMac(isMac());
+  }, []);
 
   useEffect(() => {
     const handleKeyDown = (e) => {
@@ -63,16 +73,36 @@ const SearchDialog = () => {
   }, [searchQuery]);
 
   if (!isOpen) {
+    if (iconOnly) {
+      return (
+        <button
+          onClick={() => setIsOpen(true)}
+          className="p-2 text-gray-400 hover:text-white transition-colors"
+          aria-label="Open search"
+        >
+          <Search className="w-5 h-5" />
+        </button>
+      );
+    }
+
     return (
       <button
         onClick={() => setIsOpen(true)}
-        className="flex items-center space-x-2 px-3 py-1.5 text-gray-400 hover:text-white transition-colors bg-white/15 rounded-lg hover:bg-white/10"
+        className="flex items-center justify-between gap-2 px-4 py-1.5 w-56 lg:w-72 xl:w-80 text-gray-400 hover:text-white transition-colors bg-white/10 hover:bg-white/15 rounded-lg border border-white/10 hover:border-white/20"
       >
-        <Search className="w-4 h-4" />
-        <span className="text-sm hidden sm:block">Search ...</span>
-        <span className="hidden md:flex items-center space-x-1 px-1.5 py-0.5 text-xs bg-white/10 rounded">
-          <Command className="w-3 h-3" />
-          <span>K</span>
+        <span className="flex items-center gap-2">
+          <Search className="w-4 h-4 flex-shrink-0" />
+          <span className="text-sm">Search ...</span>
+        </span>
+        <span className="flex items-center gap-0.5 px-1.5 py-0.5 text-xs bg-white/10 rounded flex-shrink-0">
+          {mac ? (
+            <>
+              <Command className="w-3 h-3" />
+              <span>K</span>
+            </>
+          ) : (
+            <span>Ctrl+K</span>
+          )}
         </span>
       </button>
     );
@@ -97,7 +127,7 @@ const SearchDialog = () => {
                 onChange={(e) => setSearchQuery(e.target.value)}
                 autoFocus
               />
-              <div className="flex items-center space-x-1 px-1.5 py-0.5 text-xs text-gray-400 bg-white/10 rounded">
+              <div className="flex items-center px-1.5 py-0.5 text-xs text-gray-400 bg-white/10 rounded">
                 <span>Esc</span>
               </div>
             </div>
