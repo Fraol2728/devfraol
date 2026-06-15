@@ -11,6 +11,7 @@ const pageLinks = [
   { name: "Projects", path: "/projects" },
   { name: "Certificates", path: "/certificates" },
   { name: "Contact", path: "/contact" },
+  { name: "Analytics", path: "/analytics" },
 ];
 
 const column1 = pageLinks.slice(0, 3);

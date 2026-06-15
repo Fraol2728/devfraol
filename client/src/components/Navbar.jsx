@@ -1,7 +1,7 @@
-import { useState, useEffect, useRef } from "react";
-import { Link, useLocation } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Code2, Menu, X } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { Link, useLocation } from "react-router-dom";
 import SearchDialog from "./SearchDialog";
 
 const navLinks = [
@@ -13,6 +13,7 @@ const navLinks = [
   { path: "/projects", label: "Projects" },
   { path: "/certificates", label: "Certificates" },
   { path: "/contact", label: "Contact" },
+  // { path: "/analytics", label: "Analytics" },
 ];
 
 const Navbar = () => {
@@ -22,13 +23,11 @@ const Navbar = () => {
 
   useEffect(() => {
     if (!isMenuOpen) return;
-
     const handleClickOutside = (e) => {
       if (menuRef.current && !menuRef.current.contains(e.target)) {
         setIsMenuOpen(false);
       }
     };
-
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [isMenuOpen]);
@@ -49,29 +48,43 @@ const Navbar = () => {
         <div className="absolute inset-0 bg-black/50 backdrop-blur-xl" />
 
         <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="flex h-16 items-center justify-between">
-            <Link to="/" className="flex items-center space-x-3">
-              <Code2 className="w-8 h-8 text-white" aria-hidden="true" />
-              <span className="text-xl font-bold text-white">Niladri</span>
-            </Link>
+          <div className="flex h-16 items-center">
+            {/* Left — Logo */}
+            <div className="flex-shrink-0">
+              <Link to="/" className="flex items-center space-x-3">
+                <Code2 className="w-8 h-8 text-white" aria-hidden="true" />
+                <span className="text-xl font-bold text-white">Niladri</span>
+              </Link>
+            </div>
 
-            <div className="hidden md:flex items-center space-x-6">
+            {/* Center — Search (desktop) */}
+            <div className="hidden md:flex flex-1 justify-center">
               <SearchDialog />
+            </div>
+
+            {/* Right — Nav links (desktop) */}
+            <div className="hidden md:flex flex-shrink-0 items-center space-x-1">
               {navLinks.map((link) => (
                 <Link
                   key={link.path}
                   to={link.path}
-                  className={`nav-link ${location.pathname === link.path ? "bg-white/15 backdrop-blur-sm" : ""}`}
+                  className={`nav-link flex items-center gap-1.5 ${
+                    location.pathname === link.path
+                      ? "bg-white/15 backdrop-blur-sm"
+                      : ""
+                  }`}
                   aria-current={
                     location.pathname === link.path ? "page" : undefined
                   }
                 >
+                  {link.icon && link.icon}
                   {link.label}
                 </Link>
               ))}
             </div>
 
-            <div className="flex md:hidden items-center space-x-2">
+            {/* Mobile — Search + Hamburger */}
+            <div className="flex md:hidden items-center space-x-2 ml-auto">
               <SearchDialog />
               <button
                 className="p-2 text-gray-400 hover:text-white transition-colors"
@@ -89,6 +102,7 @@ const Navbar = () => {
           </div>
         </div>
 
+        {/* Mobile menu */}
         {isMenuOpen && (
           <motion.div
             className="md:hidden absolute top-full left-0 right-0 bg-black/50 backdrop-blur-xl"
@@ -101,7 +115,7 @@ const Navbar = () => {
                 <Link
                   key={link.path}
                   to={link.path}
-                  className={`block px-3 py-2 text-gray-400 hover:text-white transition-colors ${
+                  className={`flex items-center gap-2 px-3 py-2 text-gray-400 hover:text-white transition-colors ${
                     location.pathname === link.path
                       ? "bg-white/10 backdrop-blur-sm text-white"
                       : ""
@@ -111,6 +125,7 @@ const Navbar = () => {
                     location.pathname === link.path ? "page" : undefined
                   }
                 >
+                  {link.icon && link.icon}
                   {link.label}
                 </Link>
               ))}
